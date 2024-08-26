@@ -37,4 +37,6 @@ https://gs-kaede.sakura.ne.jp/kadai05/chat/js03/login.html
 - [感想]
 - 初めに実現したいことをデータを含めて整理してから取り掛かる必要があるなと感じました。データを保持するアプリケーションは難易度が急に上がるなと感じました。
 - [参考記事]
--   
+- https://qiita.com/Daichi_Lemon/items/0e5a35e6d65a134cba27
+- https://www.postman.com/quotable/workspace/quotable/request/2817454-9e671389-92da-45b9-a5db-a1f240445b6b?tab=overview
+- https://mymemory.translated.net/doc/spec.php

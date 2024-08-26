@@ -15,6 +15,32 @@
         .container {
             margin-top: 50px;
         }
+        #quoteDisplay {
+            margin-top: 20px;
+        }
+        .quote-section {
+            margin-bottom: 20px;
+        }
+        .scrollable-quotes {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .translated-text {
+            font-style: italic;
+            color: #555;
+        }
+        .quote-item {
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .quote-item .btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+        .quote-item .translated-text {
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -32,9 +58,15 @@
         </div>
         <button id="getQuote" class="btn waves-effect waves-light">新しい名言を取得</button>
         <div id="quoteDisplay" class="section">
-            <p id="quoteText" class="flow-text">名言がここに表示されます...</p>
+            <div id="quoteSection" class="quote-section">
+                <p id="quoteText" class="flow-text">名言がここに表示されます...</p>
+                <button id="translateQuote" class="btn waves-effect waves-light">翻訳</button>
+                <p id="translatedText" class="translated-text"></p>
+            </div>
             <p id="quoteAuthor" class="flow-text">著者名</p>
-        </div>
+            <button id="findMoreQuotes" class="btn waves-effect waves-light">この著者の別の名言を検索する</button>
+            <div id="authorQuotes" class="scrollable-quotes"></div>
+         </div>
     </div>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -47,18 +79,99 @@
 
             $('#getQuote').click(async function() {
                 const category = $('#category').val();
+                //選択したカテゴリー、もしくはランダムでAPIから検索
                 const url = category ? `https://api.quotable.io/random?tags=${category}` : 'https://api.quotable.io/random';
                 
                 try {
                     const response = await fetch(url);
                     if (!response.ok) throw new Error('ネットワークエラー');
                     
+                    //JSON形式で格納
                     const data = await response.json();
                     $('#quoteText').text(`"${data.content}"`);
                     $('#quoteAuthor').text(`— ${data.author}`);
+                    
+                    // ボタンを有効化
+                    $('#translateQuote').show();
+                    $('#findMoreQuotes').show();
+                    $('#translatedText').text(''); // 翻訳結果をクリア
+                    $('#authorQuotes').empty();  // 著者の別の名言をクリア
+                    //エラーの処理
                 } catch (error) {
                     $('#quoteText').text('名言の取得に失敗しました。');
                     $('#quoteAuthor').text('');
+                    $('#translateQuote').hide();
+                    $('#findMoreQuotes').hide();
+                    $('#translatedText').text('');
+                    $('#authorQuotes').empty();  // 著者の別の名言をクリア
+                }
+            });
+
+            //翻訳ボタンが押されたときの処理    
+            $('#translateQuote').click(async function() {
+                const quoteText = $('#quoteText').text();
+                //エラーの時の処理
+                if (!quoteText || quoteText === '名言がここに表示されます...') return;
+                //翻訳APIをたたく処理
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(quoteText)}&langpair=en|ja`;
+                
+                try {
+                    const response = await fetch(url);
+                    //エラー処理
+                    if (!response.ok) throw new Error('翻訳エラー');
+                    //JSON形式で格納
+                    const data = await response.json();
+                    $('#translatedText').text(`"${data.responseData.translatedText}"`);
+                } catch (error) {
+                    $('#translatedText').text('翻訳に失敗しました。');
+                }
+            });
+            //著者検索の処理
+            $('#findMoreQuotes').click(async function() {
+                const author = $('#quoteAuthor').text().replace('— ', '');
+                //エラーの処理
+                if (!author || author === '著者名') return;
+                //名言APをたたく処理
+                const url = `https://api.quotable.io/quotes?author=${encodeURIComponent(author)}&limit=3`;
+                
+                try {
+                    const response = await fetch(url);
+                    //エラー処理
+                    if (!response.ok) throw new Error('ネットワークエラー');
+                    //JSON形式で格納
+                    const data = await response.json();
+                    const quotes = data.results.map(q => `
+                        <div class="quote-item">
+                            <p>"${q.content}"</p>
+                            <button class="btn waves-effect waves-light translate-author-quote">翻訳</button>
+                            <p class="translated-text"></p>
+                        </div>
+                    `).join('');
+                    $('#authorQuotes').html(quotes);
+
+                    // 各翻訳ボタンにイベントリスナーを追加
+                    $('.translate-author-quote').click(async function() {
+                        const quoteText = $(this).prev('p').text();
+                        const $translatedText = $(this).next('p');
+                        //エラー処理
+                        if (!quoteText) return;
+                        //翻訳APIたたく
+                        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(quoteText)}&langpair=en|ja`;
+                        
+                        try {
+                            const response = await fetch(url);
+                            //エラー処理
+                            if (!response.ok) throw new Error('翻訳エラー');
+                            
+                            const data = await response.json();
+                            $translatedText.text(`"${data.responseData.translatedText}"`);
+                        } catch (error) {
+                            $translatedText.text('翻訳に失敗しました。');
+                        }
+                    });
+                //エラー処理
+                } catch (error) {
+                    $('#authorQuotes').html('<p>著者の別の名言の取得に失敗しました。</p>');
                 }
             });
         });

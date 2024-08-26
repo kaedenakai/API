@@ -8,40 +8,6 @@
     <!-- Materialize CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            background-color: #f0f0f0;
-        }
-        .container {
-            margin-top: 50px;
-        }
-        #quoteDisplay {
-            margin-top: 20px;
-        }
-        .quote-section {
-            margin-bottom: 20px;
-        }
-        .scrollable-quotes {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .translated-text {
-            font-style: italic;
-            color: #555;
-        }
-        .quote-item {
-            margin-bottom: 10px;
-            position: relative;
-        }
-        .quote-item .btn {
-            position: absolute;
-            right: 0;
-            top: 0;
-        }
-        .quote-item .translated-text {
-            margin-top: 5px;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -65,6 +31,7 @@
             </div>
             <p id="quoteAuthor" class="flow-text">著者名</p>
             <button id="findMoreQuotes" class="btn waves-effect waves-light">この著者の別の名言を検索する</button>
+            <button id="researchAuthor" class="btn waves-effect waves-light">この著者について調べる</button>
             <div id="authorQuotes" class="scrollable-quotes"></div>
          </div>
     </div>
@@ -174,6 +141,16 @@
                     $('#authorQuotes').html('<p>著者の別の名言の取得に失敗しました。</p>');
                 }
             });
+            // 「この著者について調べる」ボタンがクリックされたときの処理
+            $('#researchAuthor').click(function() {
+                const author = $('#quoteAuthor').text().replace('— ', '');
+                //エラー処理
+                if (!author || author === '著者名') return;
+
+                // 著者名をクエリパラメータとしてauthor.htmlに遷移
+                window.location.href = `author.html?name=${encodeURIComponent(author)}`;
+            });
+
         });
     </script>
 </body>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>著者情報</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="center-align">著者情報</h1>
+        <div id="authorDetails" class="section">
+            <div class="author-info">
+                <h5 id="authorName">著者名</h5>
+                <p id="authorBirthInfo">出身、誕生年-没年</p>
+                <p id="authorBio">著者の基本情報</p>
+            </div>
+        </div>
+        <a href="index.html" class="btn waves-effect waves-light">戻る</a>
+    </div>
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+<script>
+    $(document).ready(function() {
+        // URLのクエリパラメータから著者名を取得
+        const urlParams = new URLSearchParams(window.location.search);
+        const authorName = urlParams.get('name');
+
+        if (!authorName) {
+            $('#authorName').text('著者名が指定されていません');
+            return;
+        }
+
+        // MediaWiki APIのURLを設定
+        const apiUrl = `https://ja.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&titles=${encodeURIComponent(authorName)}&exintro&origin=*`;
+
+        // APIから著者情報を取得して表示
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('ネットワークエラー');
+                return response.json();
+            })
+            .then(data => {
+                const pages = data.query.pages;
+                const page = Object.values(pages)[0];
+
+                if (page && page.extract) {
+                    $('#authorName').text(authorName);
+                    $('#authorBiography').html(page.extract);
+                    // 出身地や誕生年 - 没年などの情報はWikipediaのテキストから解析する必要があります
+                    $('#authorBirthplace').text('出身地: 情報なし');
+                    $('#authorLifespan').text('誕生年 - 没年: 情報なし');
+                } else {
+                    $('#authorName').text('著者情報が見つかりません');
+                    $('#authorBirthplace').text('');
+                    $('#authorLifespan').text('');
+                    $('#authorBiography').text('');
+                }
+            })
+            .catch(error => {
+                $('#authorName').text('著者情報の取得に失敗しました');
+                $('#authorBirthplace').text('');
+                $('#authorLifespan').text('');
+                $('#authorBiography').text('');
+            });
+    });
+
+</script>
+</html>

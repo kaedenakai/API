@@ -1,0 +1,48 @@
+
+body {
+    background-color: #f0f0f0;
+}
+.container {
+    margin-top: 50px;
+}
+#quoteDisplay {
+    margin-top: 20px;
+}
+.quote-section {
+    margin-bottom: 20px;
+}
+.scrollable-quotes {
+    max-height: 200px;
+    overflow-y: auto;
+}
+.translated-text {
+    font-style: italic;
+    color: #555;
+}
+.quote-item {
+    margin-bottom: 10px;
+    position: relative;
+}
+.quote-item .btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.quote-item .translated-text {
+    margin-top: 5px;
+}
+
+
+/* author.html */
+body {
+    background-color: #f0f0f0;
+}
+.container {
+    margin-top: 50px;
+}
+.author-info {
+    margin-bottom: 20px;
+}
+.author-info h5 {
+    margin: 0;
+}
